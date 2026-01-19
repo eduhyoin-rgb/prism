@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>상사유형 카드</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Bebas+Neue&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: linear-gradient(135deg, #5ab9b0 0%, #6dcac1 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+            color: white;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            font-size: 3.5em;
+            margin-bottom: 20px;
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 3px;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 50%, #1a1a2e 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            text-align: center;
+            font-size: 1.2em;
+            margin-bottom: 60px;
+            color: #2c3e50;
+        }
+
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        .card-button {
+            background: linear-gradient(135deg, #ffffff 0%, #f0fffe 100%);
+            border: 3px solid #3498db;
+            border-radius: 20px;
+            padding: 40px 30px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            overflow: hidden;
+            color: #2c3e50;
+        }
+
+        .card-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .card-button:hover::before {
+            left: 100%;
+        }
+
+        .card-button:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 20px 60px rgba(52, 152, 219, 0.4);
+            border-color: #5dade2;
+        }
+
+        .card-button.type1 { border-color: #3498db; }
+        .card-button.type2 { border-color: #e74c3c; }
+        .card-button.type3 { border-color: #f39c12; }
+        .card-button.type4 { border-color: #9b59b6; }
+
+        .card-button.type1:hover { box-shadow: 0 20px 60px rgba(52, 152, 219, 0.4); }
+        .card-button.type2:hover { box-shadow: 0 20px 60px rgba(231, 76, 60, 0.4); }
+        .card-button.type3:hover { box-shadow: 0 20px 60px rgba(243, 156, 18, 0.4); }
+        .card-button.type4:hover { box-shadow: 0 20px 60px rgba(155, 89, 182, 0.4); }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .card-type {
+            font-size: 0.9em;
+            color: #5ab9b0;
+            margin-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        .card-title {
+            font-size: 2.5em;
+            font-weight: 900;
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 2px;
+        }
+
+        .card-subtitle {
+            font-size: 1.1em;
+            margin-top: 10px;
+            color: #34495e;
+            font-weight: 500;
+        }
+
+        .card-hashtags {
+            margin-top: 15px;
+            font-size: 0.85em;
+            color: #5ab9b0;
+            line-height: 1.8;
+        }
+
+        .card-icon {
+            font-size: 4em;
+            margin: 20px 0;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal.active {
+            display: flex;
+            opacity: 1;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-content {
+            background: #ffffff;
+            border-radius: 30px;
+            max-width: 1200px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.9);
+            transition: transform 0.3s ease;
+            color: #2c3e50;
+        }
+
+        .modal.active .modal-content {
+            transform: scale(1);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            font-size: 2em;
+            color: #2c3e50;
+            background: rgba(90, 185, 176, 0.2);
+            border: none;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .close-btn:hover {
+            background: rgba(90, 185, 176, 0.4);
+            transform: rotate(90deg);
+        }
+
+        .flip-container {
+            perspective: 1500px;
+            margin: 40px;
+        }
+
+        .flipper {
+            position: relative;
+            transition: transform 0.8s;
+            transform-style: preserve-3d;
+        }
+
+        .flip-container.flipped .flipper {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            backface-visibility: hidden;
+            border-radius: 20px;
+            padding: 50px;
+            background: #ffffff;
+        }
+
+        .card-front {
+            border: 3px solid;
+        }
+
+        .card-back {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            transform: rotateY(180deg);
+            border: 3px solid;
+        }
+
+        .type1 .card-front, .type1 .card-back { border-color: #3498db; }
+        .type2 .card-front, .type2 .card-back { border-color: #e74c3c; }
+        .type3 .card-front, .type3 .card-back { border-color: #f39c12; }
+        .type4 .card-front, .type4 .card-back { border-color: #9b59b6; }
+
+        .front-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .front-title {
+            font-size: 3.5em;
+            font-weight: 900;
+            font-family: 'Bebas Neue', sans-serif;
+            margin-bottom: 15px;
+            letter-spacing: 3px;
+        }
+
+        .front-subtitle {
+            font-size: 1.3em;
+            margin-bottom: 20px;
+        }
+
+        .front-hashtags {
+            font-size: 1em;
+            color: #5ab9b0;
+            margin-bottom: 30px;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 20px;
+        }
+
+        .feature-list li {
+            padding: 15px 20px;
+            margin-bottom: 12px;
+            background: rgba(90, 185, 176, 0.1);
+            border-radius: 10px;
+            border-left: 4px solid;
+            font-size: 1.05em;
+        }
+
+        .type1 .feature-list li { border-color: #3498db; }
+        .type2 .feature-list li { border-color: #e74c3c; }
+        .type3 .feature-list li { border-color: #f39c12; }
+        .type4 .feature-list li { border-color: #9b59b6; }
+
+        .back-section {
+            margin-bottom: 40px;
+        }
+
+        .back-section h3 {
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .emoji-icon {
+            font-size: 1.2em;
+        }
+
+        .preference-item {
+            background: rgba(52, 152, 219, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #3498db;
+            line-height: 1.8;
+        }
+
+        .dislike-item {
+            background: rgba(231, 76, 60, 0.1);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border-left: 4px solid #e74c3c;
+            line-height: 1.8;
+        }
+
+        .flip-btn {
+            display: block;
+            margin: 30px auto 0;
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #5ab9b0 0%, #6dcac1 100%);
+            border: none;
+            border-radius: 50px;
+            color: white;
+            font-size: 1.1em;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .flip-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(90, 185, 176, 0.4);
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5em;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .flip-container {
+                margin: 20px;
+            }
+
+            .card-front, .card-back {
+                padding: 30px;
+            }
+
+            .front-title {
+                font-size: 2.5em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>상사유형 카드</h1>
+        <p class="subtitle">카드를 클릭하여 각 유형의 특징을 확인해보세요</p>
+
+        <div class="cards-grid">
+            <div class="card-button type1" onclick="openModal('type1')">
+                <div class="card-header">
+                    <div class="card-type">TYPE 1</div>
+                    <div class="card-icon">🏃</div>
+                    <div class="card-title">Mover</div>
+                    <div class="card-subtitle">명확한 목표!<br>바로 본론으로 들어간다~</div>
+                    <div class="card-hashtags">#명확 #스피드 #다이렉트 #목표 #추진력</div>
+                </div>
+            </div>
+
+            <div class="card-button type2" onclick="openModal('type2')">
+                <div class="card-header">
+                    <div class="card-type">TYPE 2</div>
+                    <div class="card-icon">💡</div>
+                    <div class="card-title">Connector</div>
+                    <div class="card-subtitle">조화와 균형을<br>추구해요</div>
+                    <div class="card-hashtags">#사람 좋아 #Talk #아이디어 #인정욕구</div>
+                </div>
+            </div>
+
+            <div class="card-button type3" onclick="openModal('type3')">
+                <div class="card-header">
+                    <div class="card-type">TYPE 3</div>
+                    <div class="card-icon">🏗️</div>
+                    <div class="card-title">Architect</div>
+                    <div class="card-subtitle">'말'보다 철저한 계획과<br>시스템으로 해결</div>
+                    <div class="card-hashtags">#계획 강박 #데이터 #정보 #분석로 말해요</div>
+                </div>
+            </div>
+
+            <div class="card-button type4" onclick="openModal('type4')">
+                <div class="card-header">
+                    <div class="card-type">TYPE 4</div>
+                    <div class="card-icon">🌟</div>
+                    <div class="card-title">Visionary</div>
+                    <div class="card-subtitle">개인의 성장이<br>곧 조직의 성장입니다!</div>
+                    <div class="card-hashtags">#동기부여King #멘토링 #심리적 안정감</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div id="modal-type1" class="modal" onclick="closeModalOnBackground(event, 'type1')">
+        <div class="modal-content type1" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeModal('type1')">×</button>
+            <div class="flip-container" id="flip-type1">
+                <div class="flipper">
+                    <div class="card-front">
+                        <div class="front-header">
+                            <div class="front-title">Mover</div>
+                            <div class="front-subtitle">명확한 목표! 바로 본론으로 들어간다~</div>
+                            <div class="front-hashtags">#명확 #스피드 #다이렉트 #목표 #추진력</div>
+                        </div>
+                        <ul class="feature-list">
+                            <li>빠르고 명확한 메시지 전달</li>
+                            <li>명확한 목표, Output 이미지</li>
+                            <li>즉각적인 행동 요구</li>
+                            <li>실행 지향적</li>
+                            <li>시간에 민감하고 우선순위대로 일함</li>
+                        </ul>
+                        <button class="flip-btn" onclick="flipCard('type1')">더 알아보기 →</button>
+                    </div>
+                    <div class="card-back">
+                        <div class="back-section">
+                            <h3><span class="emoji-icon">😊</span> 선호해요</h3>
+                            <div class="preference-item">나는 결과치를 보다는 본론을, 과정보다는 결과를 가지고 이야기하는 것을 선호해요. 사람들이 무엇가를 말할 때에도 결론부터 명확하게 정리해 주기를 원해요.</div>
+                            <div class="preference-item">가능한 한 완벽하게 준비되는 것을 좋아해요. 꼼꼼하게 하나 하나 점검하고 점검해서 완벽이 가까워 질수를 기본이 중시합니다.</div>
+                            <div class="preference-item">나는 빠르게 행동하는것을 좋아해요. 누군가와 어떤 이야기를 하게 되면 몇가지 동작이 무엇가를 만들어내고자 해요. 혼란들도 그렇게 해 주었으면 좋겠고요.</div>
+                        </div>
+                        <div class="back-section">
+                            <h3><span class="emoji-icon">😣</span> 불편해요</h3>
+                            <div class="dislike-item">무엇을 이야기 하는 장황하게 말하거나, 돌려 말하는 사람들이 있어요. 솔직히 무슨 말인지 하나도 모르겠어요.</div>
+                            <div class="dislike-item">비효율을 목격하거나, 내 시간을 낭비했다는 생각이 들면 꾸짓한 기분이 들어요. 효율적이지 못한 것들이 모두 불편합니다.</div>
+                        </div>
+                        <button class="flip-btn" onclick="flipCard('type1')">← 특징 보기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-type2" class="modal" onclick="closeModalOnBackground(event, 'type2')">
+        <div class="modal-content type2" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeModal('type2')">×</button>
+            <div class="flip-container" id="flip-type2">
+                <div class="flipper">
+                    <div class="card-front">
+                        <div class="front-header">
+                            <div class="front-title">Connector</div>
+                            <div class="front-subtitle">조화와 균형을 추구해요</div>
+                            <div class="front-hashtags">#사람 좋아 #Talk #아이디어 #인정욕구</div>
+                        </div>
+                        <ul class="feature-list">
+                            <li>대인관계와 소프트 스킬 탁월</li>
+                            <li>문서/이메일 보다는 대면 소통 선호</li>
+                            <li>아이디어와 정보 교환이 강함</li>
+                            <li>탁월한 설득, 칭찬</li>
+                            <li>인정욕구 강함</li>
+                        </ul>
+                        <button class="flip-btn" onclick="flipCard('type2')">더 알아보기 →</button>
+                    </div>
+                    <div class="card-back">
+                        <div class="back-section">
+                            <h3><span class="emoji-icon">😊</span> 선호해요</h3>
+                            <div class="preference-item">나는 사람들과 이야기하는 것을 좋아해요. 새로 함께 연결되어 상호작용을 할 때, 언에서 에너지를 얻습니다.</div>
+                            <div class="preference-item">보통 이런 아이디어에 대해 주변 사람들을 동조시키는 것을 좋구요. 반면 감정을 가진 사람을 설득하는데 성공하면, 그만한 희열이 없습니다.</div>
+                            <div class="preference-item">사람들에게 인정받고 싶어해요. 그래서 많은 사람들고 다양한 관계를 하고, 영감을 주려고 노력합니다.</div>
+                        </div>
+                        <div class="back-section">
+                            <h3><span class="emoji-icon">😣</span> 불편해요</h3>
+                            <div class="dislike-item">경쟁이 치나친 환경을 선호하지 않아요. 경쟁이 과열되면 이내 내가 잘못 들어가 정보 공유도 제대로 하지 않고, 소통도 제대로 안 하더라구요.</div>
+                            <div class="dislike-item">문서로만 소통하는 것은 불편하게 느껴요. 새로 얼굴을 마주하고 이야기할 때 만은 아이디어가 나오는 법인데...</div>
+                        </div>
+                        <button class="flip-btn" onclick="flipCard('type2')">← 특징 보기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-type3" class="modal" onclick="closeModalOnBackground(event, 'type3')">
+        <div class="modal-content type3" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeModal('type3')">×</button>
+            <div class="flip-container" id="flip-type3">
+                <div class="flipper">
+                    <div class="card-front">
+                        <div class="front-header">
+                            <div class="front-title">Architect</div>
+                            <div class="front-subtitle">'말'보다 철저한 계획과<br>시스템으로 해결</div>
+                            <div class="front-hashtags">#계획 강박 #데이터 #정보 #분석로 말해요</div>
+                        </div>
+                        <ul class="feature-list">
+                            <li>데이터와 결과에 중점을 둠</li>
+                            <li>계획/시스템 구조에 시간을 많이 쓸</li>
+                            <li>조직 내 관계 형성에 능하지 않음</li>
+                            <li>분석적 사고와 탁월한 문제해결 능력</li>
+                            <li>이메일과 문서로 주로 소통</li>
+                        </ul>
+                        <button class="flip-btn" onclick="flipCard('type3')">더 알아보기 →</button>
+                    </div>
+                    <div class="card-back">
+                        <div class="back-section">
+                            <h3><span class="emoji-icon">😊</span> 선호해요</h3>
+                            <div class="preference-item">나는 철차, 규칙, 계획과 같은 단어들을 좋아해요. 제대로 계획하고, 철저한 절차를 지켜서 무엇이든 해야 한다고 생각해요.</div>
+                            <div class="preference-item">말을 할 때에도 step by step으로 구조를 갖추어 이야기하려 해요. 그렇게 해야 듣루하게 주력적으로 말하서 코스트가 발생하지 않습니다.</div>
+                            <div class="preference-item">사람들이랑 직접적으로 소통하기보다는 문서나 메일로 소통하는 것을 선호해요. 그렇을 때 정보나 데이터의 투명성 확보 틀이으라고 생각합니다.</div>
+                        </div>
+                        <div class="back-section">
+                            <h3><span class="emoji-icon">😣</span> 불편해요</h3>
+                            <div class="dislike-item">예측할 수 없는 상황을 싫어해요. 사람도 마친가지구요. 틀디지 일관성 없는 것에 대해 불안함을 느낍니다. 너무 계획적이라고 불 수 있어요.</div>
+                            <div class="dislike-item">공과 사를 구분하지 못하는 사람들을 불편해 합니다. 사적인 관계보다는 단적히 업무가 우선되어야 한다고 생각해요. 회하는 워하라 오는 곳이니까요.</div>
+                        </div>
+                        <button class="flip-btn" onclick="flipCard('type3')">← 특징 보기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal-type4" class="modal" onclick="closeModalOnBackground(event, 'type4')">
+        <div class="modal-content type4" onclick="event.stopPropagation()">
+            <button class="close-btn" onclick="closeModal('type4')">×</button>
+            <div class="flip-container" id="flip-type4">
+                <div class="flipper">
+                    <div class="card-front">
+                        <div class="front-header">
+                            <div class="front-title">Visionary</div>
+                            <div class="front-subtitle">개인의 성장이<br>곧 조직의 성장입니다!</div>
+                            <div class="front-hashtags">#동기부여King #멘토링 #심리적 안정감</div>
+                        </div>
+                        <ul class="feature-list">
+                            <li>팀원 개인의 감정과 상황 이해</li>
+                            <li>감정/의지 자유롭게 표현하는 환경 조성</li>
+                            <li>1:1 멘토링, 코칭에 탁월</li>
+                            <li>독립적으로 일하는 걸 좋아함</li>
+                            <li>피드백/격려를 통한 동기부여에 탁월</li>
+                        </ul>
+                        <button class="flip-btn" onclick="flipCard('type4')">더 알아보기 →</button>
+                    </div>
+                    <div class="card-back">
+                        <div class="back-section">
+                            <h3><span class="emoji-icon">😊</span> 선호해요</h3>
+                            <div class="preference-item">나는 모두가 독립적인 player로서 일하되, 의견을 내어 하는 자리에서는 자유롭게 말할 수 있는 환경을 선호합니다. 그만큼 많은 아이디어가 나온다고 생각합니다.</div>
+                            <div class="preference-item">나와 함께 일하는 사람들이 성장할 수 있는 환경을 제공하고자 해요. 비면보다는 피드백을 통해 내용을 이끌고, 동기부여를 하는 편입니다.</div>
+                            <div class="preference-item">이처럼 다 사람이 하는 일이잖아요. 그래 조직 내에서 긴 문명히 성장하고 감정이나 상황을 존중하려고 합니다.</div>
+                        </div>
+                        <div class="back-section">
+                            <h3><span class="emoji-icon">😣</span> 불편해요</h3>
+                            <div class="dislike-item">사람들이 각자의 특성을 발휘하지 못하고 기계적으로 일하는 상황을 못 봐요. 너도 그런 사람이다 잘 하는 게 각자 다 다른데... 재능을 썩히는 게 너무 아까워요.</div>
+                            <div class="dislike-item">불필요한 피드백을 싫어합니다. 건설적이지 못한 이야기를 듣고 있다 보면 저도 그런 사람이 되는 것 같다고요.</div>
+                        </div>
+                        <button class="flip-btn" onclick="flipCard('type4')">← 특징 보기</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function openModal(type) {
+            const modal = document.getElementById('modal-' + type);
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal(type) {
+            const modal = document.getElementById('modal-' + type);
+            modal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+            
+            // Reset flip state when closing
+            const flipContainer = document.getElementById('flip-' + type);
+            flipContainer.classList.remove('flipped');
+        }
+
+        function closeModalOnBackground(event, type) {
+            if (event.target.classList.contains('modal')) {
+                closeModal(type);
+            }
+        }
+
+        function flipCard(type) {
+            const flipContainer = document.getElementById('flip-' + type);
+            flipContainer.classList.toggle('flipped');
+        }
+
+        // Close modal on ESC key
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const modals = document.querySelectorAll('.modal.active');
+                modals.forEach(modal => {
+                    modal.classList.remove('active');
+                    document.body.style.overflow = 'auto';
+                });
+            }
+        });
+    </script>
+</body>
+</html>
